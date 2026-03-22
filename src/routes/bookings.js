@@ -46,10 +46,13 @@ router.post("/", async (req, res) => {
       eventLink: event?.htmlLink
     });
 
-  } catch (err) {
-    const code = err.code && Number.isInteger(err.code) ? err.code : 500;
-    res.status(code).json({ error: err.message || "Server error" });
-  }
+  
+} catch (err) {
+  console.error("BOOKING ERROR:", err);   // <-- ADD THIS LINE
+  const code = err.code && Number.isInteger(err.code) ? err.code : 500;
+  res.status(code).json({ error: err.message || "Server error" });
+}
+
 });
 
 export default router;
