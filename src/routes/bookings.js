@@ -18,7 +18,7 @@ router.post("/", async (req, res) => {
    `Service: ${service}`,
    `Barber: ${barber}`,
    notes ? `Notes: ${notes}` : null
-  ].filter(Boolean).join("
+  ].filter(Boolean).join("\n");
 ");
   const event = await createCalendarEvent({
    summary,
