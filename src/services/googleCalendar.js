@@ -1,55 +1,35 @@
-import { google } from "googleapis";
 
-const calendar = google.calendar("v3");
+    import { google } from "googleapis";
 
-export async function createCalendarEvent({ summary, description, start, end, timeZone }) {
-  const rawKey = process.env.GOOGLE_PRIVATE_KEY || "";
+    export function calendarClient() {
+      const clientEmail = process.env.GOOGLE_CLIENT_EMAIL;
+      const rawKey = process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY || "";
+      const privateKey = rawKey.includes("\n") ? rawKey.replace(/\n/g, "
+") : rawKey;
 
-  // Convert escaped \n into real newlines (Render stores ENV vars on one line)
-  const privateKey = rawKey.replace(/\\n/g, "\n");
+      const auth = new google.auth.JWT({
+        email: clientEmail,
+        key: privateKey,
+        scopes: ["https://www.googleapis.com/auth/calendar.events"],
+      });
 
-  const auth = new google.auth.JWT(
-    process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-    null,
-    privateKey,
-    ["https://www.googleapis.com/auth/calendar"]
+      return google.calendar({ version: "v3", auth });
+    }
 
- );
+    export async function createCalendarEvent({ summary, description, start, end, timeZone }) {
+      const calendarId = process.env.GOOGLE_CALENDAR_ID;
+      const cal = calendarClient();
 
-  await auth.authorize();
+      const res = await cal.events.insert({
+        calendarId,
+        requestBody: {
+          summary,
+          description,
+          start: { dateTime: start, timeZone },
+          end:   { dateTime: end,   timeZone },
+          reminders: { useDefault: true }
+        }
+      });
 
-  const event = {
-    summary,
-    description,
-    start: { dateTime: start, timeZone },
-    end: { dateTime: end, timeZone }
-  };
-
-  const res = await calendar.events.insert({
-    auth,
-    calendarId: process.env.GOOGLE_CALENDAR_ID,
-    requestBody: event
-  });
-
-  return res.data;
-}
-
-export async function hasCalendarConflict({ start, end }) {
-  const res = await calendar.events.list({
-    calendarId: "primary",
-    timeMin: start,
-    timeMax: end,
-    singleEvents: true,
-    orderBy: "startTime"
-  });
-
-  return res.data.items && res.data.items.length > 0;
-}
-``
-
-export {
-  createCalendarEvent,
-  hasCalendarConflict
-};
-
-
+      return res.data;
+    }
