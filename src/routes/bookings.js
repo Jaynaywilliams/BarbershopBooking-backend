@@ -1,6 +1,12 @@
 import { Router } from "express";
 import { requireFields, parseDateTime } from "../utils/validate.js";
-import { createCalendarEvent } from "../services/googleCalendar.js";
+
+import {
+  createCalendarEvent,
+  hasCalendarConflict
+} from "../services/googleCalendar.js";
+``
+
 
 const router = Router();
 
@@ -17,7 +23,19 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ error: "End time must be after start" });
     }
 
-    const tz = process.env.TIMEZONE || "America/Los_Angeles";
+const tz = process.env.TIMEZONE || "America/Los_Angeles";
+
+const conflict = await hasCalendarConflict({
+  start: startDt.toISOString(),
+  end: endDt.toISOString()
+});
+
+if (conflict) {
+  return res.status(409).json({
+    error: "This time slot is already booked. Please choose another time."
+  });
+}
+``
 
     const summary = `${service} - ${name} with ${barber}`;
 
