@@ -5,7 +5,6 @@ import {
   createCalendarEvent,
   hasCalendarConflict
 } from "../services/googleCalendar.js";
-``
 
 
 const router = Router();
@@ -35,7 +34,6 @@ if (conflict) {
     error: "This time slot is already booked. Please choose another time."
   });
 }
-``
 
     const summary = `${service} - ${name} with ${barber}`;
 
