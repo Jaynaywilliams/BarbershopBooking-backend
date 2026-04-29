@@ -33,4 +33,17 @@ export async function createCalendarEvent({ summary, description, start, end, ti
 
   return res.data;
 }
+
+export async function hasCalendarConflict({ start, end }) {
+  const res = await calendar.events.list({
+    calendarId: "primary",
+    timeMin: start,
+    timeMax: end,
+    singleEvents: true,
+    orderBy: "startTime"
+  });
+
+  return res.data.items && res.data.items.length > 0;
+}
 ``
+
