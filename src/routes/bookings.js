@@ -58,7 +58,17 @@ if (conflict) {
 
     return res.json({
       ok: true,
-      confirmation: event?.id || `TEMP-${Date.now()}`,
+      
+if (!event || !event.id) {
+  throw new Error("Google Calendar event was not created");
+}
+
+return res.json({
+  ok: true,
+  confirmation: event.id,
+  eventLink: event.htmlLink
+});
+
       eventLink: event?.htmlLink
     });
 
