@@ -47,3 +47,9 @@ export async function hasCalendarConflict({ start, end }) {
 }
 ``
 
+export {
+  createCalendarEvent,
+  hasCalendarConflict
+};
+
+
