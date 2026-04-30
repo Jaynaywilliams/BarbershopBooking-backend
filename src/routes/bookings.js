@@ -15,7 +15,7 @@
         const endDt   = parseDateTime(end);
         if (endDt <= startDt) return res.status(400).json({ error: "End time must be after start" });
       
-onst BUFFER_MINUTES = 1;
+const BUFFER_MINUTES = 1;
 
 const bufferedStart = new Date(startDt.getTime() - BUFFER_MINUTES * 60000);
 const bufferedEnd = new Date(endDt.getTime() + BUFFER_MINUTES * 60000);
