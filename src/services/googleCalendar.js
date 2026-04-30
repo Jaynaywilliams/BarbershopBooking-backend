@@ -33,14 +33,21 @@
       return res.data;
     }
 
+
 export async function hasCalendarConflict({ start, end }) {
-  const response = await calendar.events.list({
-    calendarId: "primary", // or your shop calendar ID
-    timeMin: start,
-    timeMax: end,
-    singleEvents: true,
-    orderBy: "startTime"
+  const response = await calendar.freebusy.query({
+    requestBody: {
+      timeMin: start,
+      timeMax: end,
+      items: [{ id: "primary" }] // or your shop calendar ID
+    }
   });
+
+  const busySlots = response.data.calendars.primary.busy;
+
+  return busySlots.length > 0;
+}
+
 
   const events = response.data.items || [];
 
