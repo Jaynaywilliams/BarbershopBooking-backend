@@ -1,57 +1,59 @@
-    import { google } from "googleapis";
+import { google } from "googleapis";
 
-    export function calendarClient() {
-      const clientEmail = process.env.GOOGLE_CLIENT_EMAIL;
-      const rawKey = process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY || "";
-      const privateKey = rawKey.includes("\n") ? rawKey.replace(/\n/g, "
-") : rawKey;
+function calendarClient() {
+  const clientEmail = process.env.GOOGLE_CLIENT_EMAIL;
+  const rawKey = process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY || "";
 
-      const auth = new google.auth.JWT({
-        email: clientEmail,
-        key: privateKey,
-        scopes: ["https://www.googleapis.com/auth/calendar.events"],
-      });
+  const privateKey = rawKey.replace(/\\n/g, "\n");
 
-      return google.calendar({ version: "v3", auth });
-    }
+  const auth = new google.auth.JWT({
+    email: clientEmail,
+    key: privateKey,
+    scopes: ["https://www.googleapis.com/auth/calendar"]
+  });
 
-    export async function createCalendarEvent({ summary, description, start, end, timeZone }) {
-      const calendarId = process.env.GOOGLE_CALENDAR_ID;
-      const cal = calendarClient();
-
-      const res = await cal.events.insert({
-        calendarId,
-        requestBody: {
-          summary,
-          description,
-          start: { dateTime: start, timeZone },
-          end:   { dateTime: end,   timeZone },
-          reminders: { useDefault: true }
-        }
-      });
-
-      return res.data;
-    }
-
+  return google.calendar({ version: "v3", auth });
+}
 
 export async function hasCalendarConflict({ start, end }) {
-  const response = await calendar.freebusy.query({
+  const calendarId = process.env.GOOGLE_CALENDAR_ID;
+  const cal = calendarClient();
+
+  const response = await cal.freebusy.query({
     requestBody: {
       timeMin: start,
       timeMax: end,
-      items: [{ id: "primary" }] // or your shop calendar ID
+      items: [{ id: calendarId }]
     }
   });
 
-  const busySlots = response.data.calendars.primary.busy;
+  const busy =
+    response.data.calendars?.[calendarId]?.busy ?? [];
 
-  return busySlots.length > 0;
+  return busy.length > 0;
 }
 
+export async function createCalendarEvent({
+  summary,
+  description,
+  start,
+  end,
+  timeZone
+}) {
+  const calendarId = process.env.GOOGLE_CALENDAR_ID;
+  const cal = calendarClient();
 
-  const events = response.data.items || [];
+  const res = await cal.events.insert({
+    calendarId,
+    requestBody: {
+      summary,
+      description,
+      start: { dateTime: start, timeZone },
+      end: { dateTime: end, timeZone },
+      reminders: { useDefault: true }
+    }
+  });
 
-  // Ignore all-day events, only block timed events
-  return events.some(event => event.start?.dateTime);
+  return res.data;
 }
-
+``
