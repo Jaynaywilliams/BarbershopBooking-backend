@@ -56,11 +56,11 @@ router.post("/", async (req, res) => {
     
 console.log("🔥 BOOKINGS ROUTE HIT");
 
-...
+
 
 console.log("🔒 ATTEMPTING FIREBASE LOCK");
 
-...
+
 
 console.log("✅ FIREBASE LOCK CREATED");
 
