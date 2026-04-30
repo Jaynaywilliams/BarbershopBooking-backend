@@ -1,5 +1,4 @@
-   
-import {
+   import {
   createCalendarEvent,
   hasCalendarConflict
 } from "../services/googleCalendar.js";
@@ -15,18 +14,25 @@ import {
         const startDt = parseDateTime(start);
         const endDt   = parseDateTime(end);
         if (endDt <= startDt) return res.status(400).json({ error: "End time must be after start" });
-         
+      
+onst BUFFER_MINUTES = 1;
+
+const bufferedStart = new Date(startDt.getTime() - BUFFER_MINUTES * 60000);
+const bufferedEnd = new Date(endDt.getTime() + BUFFER_MINUTES * 60000);
+   
+
+
 const conflict = await hasCalendarConflict({
-  start: startDt.toISOString(),
-  end: endDt.toISOString()
+  start: bufferedStart.toISOString(),
+  end: bufferedEnd.toISOString()
 });
 
 if (conflict) {
+  console.log("⛔ CONFLICT — STOPPING BOOKING");
   return res.status(409).json({
     error: "That time is already booked. Please choose another time."
   });
 }
-
 
         const tz = process.env.TIMEZONE || "America/Los_Angeles";
         const summary = `${service} - ${name} with ${barber}`;
@@ -59,8 +65,9 @@ return res.json({
   eventLink: event.htmlLink
 });
 
-        return res.json({ ok: true, confirmation: event?.id || `TEMP-${Date.now()}`, eventLink: event?.htmlLink });
-      } catch (err) {
+        
+      } 
+      catch (err) {
         const code = err.code && Number.isInteger(err.code) ? err.code : 500;
         console.error("Booking error:", err);
         res.status(code).json({ error: err.message || "Server error" });
