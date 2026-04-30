@@ -15,6 +15,18 @@ import {
         const startDt = parseDateTime(start);
         const endDt   = parseDateTime(end);
         if (endDt <= startDt) return res.status(400).json({ error: "End time must be after start" });
+         
+const conflict = await hasCalendarConflict({
+  start: startDt.toISOString(),
+  end: endDt.toISOString()
+});
+
+if (conflict) {
+  return res.status(409).json({
+    error: "That time is already booked. Please choose another time."
+  });
+}
+
 
         const tz = process.env.TIMEZONE || "America/Los_Angeles";
         const summary = `${service} - ${name} with ${barber}`;
@@ -28,13 +40,24 @@ import {
         ].filter(Boolean).join("
 ");
 
-        const event = await createCalendarEvent({
-          summary,
-          description,
-          start: startDt.toISOString(),
-          end: endDt.toISOString(),
-          timeZone: tz
-        });
+       
+const event = await createCalendarEvent({
+  summary,
+  description,
+  start: startDt.toISOString(),
+  end: endDt.toISOString(),
+  timeZone: tz
+});
+
+if (!event || !event.id) {
+  throw new Error("Calendar event was not created");
+}
+
+return res.json({
+  ok: true,
+  confirmation: event.id,
+  eventLink: event.htmlLink
+});
 
         return res.json({ ok: true, confirmation: event?.id || `TEMP-${Date.now()}`, eventLink: event?.htmlLink });
       } catch (err) {
