@@ -32,3 +32,19 @@
 
       return res.data;
     }
+
+export async function hasCalendarConflict({ start, end }) {
+  const response = await calendar.events.list({
+    calendarId: "primary", // or your shop calendar ID
+    timeMin: start,
+    timeMax: end,
+    singleEvents: true,
+    orderBy: "startTime"
+  });
+
+  const events = response.data.items || [];
+
+  // Ignore all-day events, only block timed events
+  return events.some(event => event.start?.dateTime);
+}
+
