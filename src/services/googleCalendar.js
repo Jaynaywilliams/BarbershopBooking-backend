@@ -1,3 +1,4 @@
+console.log("🔥 googleCalendar.js LOADED – FREEBUSY VERSION v2");
 import { google } from "googleapis";
 
 function calendarClient() {
@@ -16,6 +17,7 @@ function calendarClient() {
 }
 
 export async function hasCalendarConflict({ start, end }) {
+console.log("🚫 CHECKING FREE/BUSY", start, end);
   const calendarId = process.env.GOOGLE_CALENDAR_ID;
   const cal = calendarClient();
 
@@ -29,7 +31,7 @@ export async function hasCalendarConflict({ start, end }) {
 
   const busy =
     response.data.calendars?.[calendarId]?.busy ?? [];
-
+console.log("🟥 BUSY RESULT:", busy.length);
   return busy.length > 0;
 }
 
