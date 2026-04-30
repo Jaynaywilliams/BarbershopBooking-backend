@@ -53,6 +53,17 @@ router.post("/", async (req, res) => {
       bufferedStart.toISOString(),
       bufferedEnd.toISOString()
     );
+    
+console.log("🔥 BOOKINGS ROUTE HIT");
+
+...
+
+console.log("🔒 ATTEMPTING FIREBASE LOCK");
+
+...
+
+console.log("✅ FIREBASE LOCK CREATED");
+
 
     const slotRef = db.collection("bookingLocks").doc(slotId);
 
